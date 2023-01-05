@@ -1,0 +1,28 @@
+SELECT 100 * sum(soh.SubTotal)/
+(SELECT SUM(SubTotal)
+FROM Sales.SalesOrderHeader soh
+INNER JOIN Sales.SalesOrderDetail sod
+ON soh.SalesOrderID = sod.SalesOrderID
+INNER JOIN Production.Product pp
+ON sod.ProductID = pp.ProductID
+INNER JOIN Production.ProductSubcategory ps
+ON pp.ProductSubCategoryID = ps.ProductSubCategoryID
+INNER JOIN Production.ProductCategory pc
+ON ps.ProductCategoryID = pc.ProductCategoryID
+WHERE pc.Name LIKE 'Bikes'
+)
+Revenue
+    , COALESCE(ps.Name, 'TOTAL') Category
+    , sum((UnitPrice - StandardCost)*OrderQty)/sum(OrderQty) AS Avg_Profit
+FROM Sales.SalesOrderHeader soh
+INNER JOIN Sales.SalesOrderDetail sod
+ON soh.SalesOrderID = sod.SalesOrderID
+INNER JOIN Production.Product pp
+ON sod.ProductID = pp.ProductID
+INNER JOIN Production.ProductSubcategory ps
+ON pp.ProductSubCategoryID = ps.ProductSubCategoryID
+INNER JOIN Production.ProductCategory pc
+ON ps.ProductCategoryID = pc.ProductCategoryID
+WHERE pc.Name LIKE 'Bikes'
+GROUP BY ps.Name
+ORDER BY Revenue
